@@ -25,6 +25,10 @@ Button, TextField, CheckBox, Label {
   margin-right: 16;
   margin-bottom: 10;
 }
+/*
+GridLayout{
+    margin-top:10px;
+}*/
 
 .visible {
   animation-name: show;

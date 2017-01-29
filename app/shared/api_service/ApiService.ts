@@ -1,61 +1,63 @@
-// import { Injectable } from "@angular/core";
-// import { Http, Headers, Response } from "@angular/http";
-// import { Observable } from "rxjs/Rx";
-// import "rxjs/add/operator/do";
-// import "rxjs/add/operator/map";
+import http = require("http");
+
+export default class ApiService {
+
+    public url: string;
+    constructor() {//public http: Http
+        this.url = "http://listebde.ddns.net/api/";
+
+    }
+
+    loginUser(email, password) {
+        // return http.request(this.url + "login", { "email": email, "password": password },{ headers: headers });//, options)
+        return http.request({
+            url: this.url + "login",
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            content: JSON.stringify({ email: email, password: password })
+        });
+
+    }
+
+    registerUser(email, password, password_confirm, name, chambre) {
+
+        return http.request({
+            url: this.url + "register",
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            content: JSON.stringify({ email: email, password: password, password_confirmation: password_confirm, name: name, chambre: chambre })
+        });
 
 
-// @Injectable()
-// export class ApiService {
-//     static get parameters() {
-//         return [[Http]];
-//     }
+    }
 
-//     public url:string;
-//     constructor(private http: Http) {//public http: Http
-//         this.url = "http://listebde.ddns.net/api/";
+    getUserInfo(token) {
+        return http.getJSON(this.url + 'getUserInfo?token=' + token);
+    }
 
-//     }
+    postPushToken(token, push_token) {
+        return http.request({
+            url: this.url + "push_token?token=" + token,
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            content: JSON.stringify({ push_token: push_token })
+        })
 
-//     loginUser(email, password) {
-//         let headers = new Headers();
-//         headers.append("Content-Type", "application/json");
-//         return this.http.post(this.url + "login", { "email": email, "password": password },{ headers: headers })//, options)
-//             .map(data => data.json())
-//             .catch(this.handleErrors);
+    }
 
-//     }
+    sendCommande(name, lieu, heure, jour, nombre) {
+        heure = "2016-12-12 12:12:12";
+        jour = "2016-12-12 12:12:12";
+        return http.request({
+            url: this.url + "sendCommande",
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            content: JSON.stringify({ name:name, lieu:lieu, heure:heure, jour:jour, nombre:nombre })
+        });
+    }
 
-//     registerUser(email, password, password_confirm, name, chambre) {
+    getInfo() {
+        return http.getJSON(this.url + 'getInfo');
 
-//         return this.http.post(this.url + "register", { "email": email, "password": password, "password_confirmation": password_confirm, "name": name, "chambre": chambre })//, options)
-//             .map(data => data.json());
-
-//     }
-
-//     getUserInfo(token) {
-//         var response = this.http.get(this.url + 'getUserInfo?token=' + token).map(res => res.json());
-//         return response;
-//     }
-
-//     postPushToken(token, push_token) {
-//         return this.http.post(this.url + 'postPushToken?token=' + token, { "push_token": push_token }).map(res => res.json());
-
-//     }
-
-//     sendCommande(name, lieu, heure, jour, nombre) {
-//         heure = "2016-12-12 12:12:12";
-//         jour = "2016-12-12 12:12:12";
-//         return this.http.post(this.url + 'postCommande', { name, lieu, heure, jour, nombre }).map(res => res.json());
-//     }
-
-//     getInfo() {
-//         var response = this.http.get(this.url + 'getInfo').map(res => res.json());
-//         return response;
-
-//     }
-//     handleErrors(error: Response) {
-//         console.log(JSON.stringify(error.json()));
-//         return Observable.throw(error);
-//     }
-// }
+    }
+}

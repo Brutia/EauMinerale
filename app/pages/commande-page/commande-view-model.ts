@@ -9,7 +9,7 @@ import { CheckBox } from 'nativescript-checkbox';
 import { DatePicker } from "ui/date-picker";
 import { TimePicker } from "ui/time-picker";
 import { ScrollView } from "ui/scroll-view";
-// import { ApiService } from "../../shared/api_service/ApiService";
+import ApiService from '../../shared/api_service/ApiService';
 import { User } from "../../shared/user/user";
 import { Info } from "./info";
 import { TextField } from "ui/text-field";
@@ -19,6 +19,7 @@ import frame = require('ui/frame');
 import drawerModule = require("nativescript-telerik-ui/sidedrawer");
 import pageModule = require("nativescript-telerik-ui/sidedrawer/drawerpage");
 import observableModule = require("data/observable");
+import observableArray = require("data/observable-array");
 
 import view = require("ui/core/view");
 
@@ -31,9 +32,10 @@ export class CommandeViewModel extends observableModule.Observable{
     private token: string;
     private timeD: DatePicker;
     private timeH: TimePicker;
-    public listeInfo: Array<Info>;
     private listLoaded: boolean;
     private isLoading: boolean;
+    private apiService;
+    private listeInfo;
 
     constructor() {
         super();
@@ -41,31 +43,32 @@ export class CommandeViewModel extends observableModule.Observable{
         this.showDate = false;
         this.listLoaded = false;
         this.isLoading = true;
-        this.listeInfo = [];
-        this.set("mainContentText", "SideDrawer for NativeScript can be easily setup in the XML definition of your page by defining main- and drawer-content. The component"
-            + " has a default transition and position and also exposes notifications related to changes in its state. Swipe from left to open side drawer.");
-        // const pushPlugin = require("nativescript-push-notifications");
+        this.listeInfo = new observableArray.ObservableArray([]);
+        this.apiService = new ApiService();
+       
         // pushPlugin.onMessageReceived(function callback(data) {
         //     console.log('Message received');
         // });
 
-        // this.apiService.getInfo().subscribe(
+        this.apiService.getInfo().then(
+            function(data){
+                // for (let i in data) {
+                //     console.log(i);
+                this.isLoading = false;
+                    this.listeInfo.push({ title: "test", message: "data[i].message" });
+                // }
+                
+            },
+            function(e){
+                alert("impossible de récupérer les infos de la liste"); 
+            }
 
-        //     data => {
-        //         for (let i in data) {
-        //             this.listeInfo.push({ title: data[i].title, message: data[i].message });
-        //         }
-        //         this.isLoading = false;
-        //     },
-        //     err => {
-        //         alert("impossible de récupérer les infos de la liste");
-        //     }
-
-        // );
+           
+        );
     }
 
     public openLogin() {
-        // this.router.navigate(["login"]);
+        frame.topmost().navigate({ moduleName: './pages/login/login-page' })
     }
 
     public openRegister() {

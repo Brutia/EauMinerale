@@ -3,22 +3,64 @@
   xmlns:drawer="nativescript-telerik-ui/sidedrawer"
   loaded="loaded">
 
+  <ActionBar title="Commande">
+    <android>
+      <NavigationButton icon="res://ic_menu" tap="toggleDrawer" />
+    </android>
+    <ios>
+      <ActionItem icon="res://ic_menu" ios.position="left" tap="toggleDrawer" />
+    </ios>
+  </ActionBar>
   <drawer:RadSideDrawer id="drawer">
-
+    
     <!-- The main content -->
     <drawer:RadSideDrawer.mainContent>
-      <StackLayout>
-        <Button text="Toggle Drawer" tap="toggleDrawer" />
-      </StackLayout>
+      <TabView>
+        <TabView.items>
+          <TabViewItem title="Commande">
+            <TabViewItem.view>
+                <ScrollView>
+                    <GridLayout class="m-8" rows="auto auto auto auto auto auto auto auto auto">
+                        <Label row="0" text="Commande de ..."/>
+                        <label row="1" text="Connecte toi pour ne pas avoir à tapper ton nom!"/>
+                        <TextField row="2" hint="Nom et prénom" keyboardType="text" />
+                        <TextField row="3" hint="lieu"/>
+                        <!--<CheckBox row="4" checked="true"  text="Le plus vite possible!" tap="plusVite" />-->
+                        <!--<DatePicker row="5" #datePicker (loaded)="configureD(datePicker)" verticalAlignment="center" *ngIf="showDate"></DatePicker>-->
+                        <!--<TimePicker row="6" #timePicker (loaded)="configureT(timePicker)" verticalAlignment="center" *ngIf="showDate"></TimePicker>-->
+                        <Button row="5" text="Date" class="submit-button" tap="createModelView('date')" />
+                        <Button row="6" text="Heure" class="submit-button" tap="createModelView('time')" />
+                        <TextField row="7" hint="nombre" keyboardType="number"  />
+                        <Button row="8" text="Commander !" class="submit-button" tap="commander" />
+                    </GridLayout>
+                </ScrollView>
+            </TabViewItem.view>
+          </TabViewItem>
+          <TabViewItem title="Info">
+            <TabViewItem.view>
+                <StackLayout>
+                 <ListView items="{{ listeInfo }}" id="listeInfo">
+                    <ListView.itemTemplate>
+                      <GridLayout rows="auto, auto">
+                          <Label row="0" text="{{ title }}"/>
+                          <Label row="1" text="{{ message }}"/>
+                      </GridLayout>
+                    </ListView.itemTemplate>
+                  </ListView>
+                  <ActivityIndicator busy="{{ isLoading }}" rowSpan="2" colSpan="2" /> 
+              </StackLayout>
+            </TabViewItem.view>
+          </TabViewItem>
+        </TabView.items>
+      </TabView> 
     </drawer:RadSideDrawer.mainContent>
 
     <!-- The drawer content -->
-    <drawer:RadSideDrawer.drawerContent>
-      <GridLayout class="drawer-content">
-        <StackLayout>
-          <Label text="Home" />
-          <Label text="About" />
-          <Label text="Settings" />
+    <drawer:RadSideDrawer.drawerContent >
+      <GridLayout >
+        <StackLayout class="sideStackLayout">
+          <Label text="S'enregistrer'" class="sideLabel" tap="{{ openLogin }}"/>
+          <Label text="Se connecter" class="sideLabel" tap="{{ openLogin }}"/>
         </StackLayout>
       </GridLayout>
     </drawer:RadSideDrawer.drawerContent>
