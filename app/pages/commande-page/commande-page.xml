@@ -1,0 +1,27 @@
+<Page
+  xmlns="http://schemas.nativescript.org/tns.xsd"
+  xmlns:drawer="nativescript-telerik-ui/sidedrawer"
+  loaded="loaded">
+
+  <drawer:RadSideDrawer id="drawer">
+
+    <!-- The main content -->
+    <drawer:RadSideDrawer.mainContent>
+      <StackLayout>
+        <Button text="Toggle Drawer" tap="toggleDrawer" />
+      </StackLayout>
+    </drawer:RadSideDrawer.mainContent>
+
+    <!-- The drawer content -->
+    <drawer:RadSideDrawer.drawerContent>
+      <GridLayout class="drawer-content">
+        <StackLayout>
+          <Label text="Home" />
+          <Label text="About" />
+          <Label text="Settings" />
+        </StackLayout>
+      </GridLayout>
+    </drawer:RadSideDrawer.drawerContent>
+
+  </drawer:RadSideDrawer>
+</Page>

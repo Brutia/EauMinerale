@@ -1,0 +1,38 @@
+.drawerContentText {
+    font-size: 13;
+    padding: 10;
+}
+
+.sideStackLayout {
+    background-color: white;
+}
+
+.sideTitleStackLayout {
+    padding: 10;
+    text-align: center;
+}
+
+.sideLabel {
+    padding: 10;
+}
+
+.sideLightGrayLabel {
+    background-color: lightgray;
+}
+
+Button, TextField, CheckBox, Label {
+  margin-left: 16;
+  margin-right: 16;
+  margin-bottom: 10;
+}
+
+.visible {
+  animation-name: show;
+  animation-duration: 1s;
+}
+.small-spacing {
+  margin: 5;
+}
+.medium-spacing {
+  margin: 10;
+}
