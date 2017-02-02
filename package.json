@@ -6,7 +6,7 @@
   "nativescript": {
     "id": "org.nativescript.Appli4",
     "tns-android": {
-      "version": "2.4.1"
+      "version": "2.5.0"
     }
   },
   "dependencies": {
@@ -14,6 +14,7 @@
     "nativescript-push-notifications": "^0.1.0",
     "nativescript-telerik-ui": "^1.5.1",
     "nativescript-theme-core": "^0.2.1",
+    "nativescript-timedatepicker": "^1.1.0",
     "tns-core-modules": "2.4.4"
   },
   "devDependencies": {

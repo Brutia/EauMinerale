@@ -1,70 +1,65 @@
-
-import { View } from "ui/core/view";
-import { RadSideDrawer } from "nativescript-telerik-ui/sidedrawer";
-import { Page } from "ui/page";
-import { ActionItem } from "ui/action-bar";
 import { Commande } from "../../shared/commande/commande";
 import * as appSettings from "application-settings";
-import { CheckBox } from 'nativescript-checkbox';
-import { DatePicker } from "ui/date-picker";
-import { TimePicker } from "ui/time-picker";
-import { ScrollView } from "ui/scroll-view";
 import ApiService from '../../shared/api_service/ApiService';
 import { User } from "../../shared/user/user";
 import { Info } from "./info";
-import { TextField } from "ui/text-field";
 // import { ModalViewComponent } from "../modal/modal-view";
 // import { ModalTimeViewComponent } from "../modal-hour/modal-view";
 import frame = require('ui/frame');
 import drawerModule = require("nativescript-telerik-ui/sidedrawer");
 import pageModule = require("nativescript-telerik-ui/sidedrawer/drawerpage");
-import observableModule = require("data/observable");
-import observableArray = require("data/observable-array");
+import { Observable } from 'data/observable';
+import { ObservableArray } from 'data/observable-array';
+var pushPlugin = require("nativescript-push-notifications");
+import * as TimeDatePicker from 'nativescript-timedatepicker';
 
-import view = require("ui/core/view");
 
-export class CommandeViewModel extends observableModule.Observable{
+export class CommandeViewModel extends Observable {
 
-    commande: Commande;
     user: User;
     private isLogged: boolean;
     private showDate: boolean;
     private token: string;
-    private timeD: DatePicker;
-    private timeH: TimePicker;
-    private listLoaded: boolean;
-    private isLoading: boolean;
+    private _timeD;
+    private _timeH;
+    private _isLoading;
     private apiService;
-    private listeInfo;
+    private _listeInfo;
+    private _checkProp;
+    private _name;
+    private _lieu;
+    private _nombre;
 
     constructor() {
         super();
-        this.commande = new Commande();
-        this.showDate = false;
-        this.listLoaded = false;
-        this.isLoading = true;
-        this.listeInfo = new observableArray.ObservableArray([]);
+        this._isLoading = true;
+        this._checkProp = true;
+        this._name="";
+        this._lieu="";
         this.apiService = new ApiService();
-       
-        // pushPlugin.onMessageReceived(function callback(data) {
-        //     console.log('Message received');
-        // });
 
+        this._timeD = this.dateConverter(new Date(), "DD/MM");
+        this._timeH = this.dateConverter(new Date(), "HH:MM");
+        this._listeInfo = new ObservableArray();
         this.apiService.getInfo().then(
-            function(data){
-                // for (let i in data) {
-                //     console.log(i);
-                this.isLoading = false;
-                    this.listeInfo.push({ title: "test", message: "data[i].message" });
-                // }
-                
+            (data) => {
+                for (let i in data) {
+
+                    this._listeInfo.push({ title: data[i].title, message: data[i].message });
+                }
+                this._isLoading = false;
+                this.set("isLoading", false);
+
+                this.notifyPropertyChange("isLoading", this.isLoading);
+
             },
-            function(e){
-                alert("impossible de récupérer les infos de la liste"); 
+            (e) => {
+                alert("impossible de récupérer les infos de la liste");
             }
 
-           
+
         );
+
     }
 
     public openLogin() {
@@ -73,25 +68,94 @@ export class CommandeViewModel extends observableModule.Observable{
 
     public openRegister() {
         // this.router.navigate(["register"]);
+        // this.set("name","kfjdsqm");
+        // this.set("isLoading", false);
+
+    }
+
+    get listeInfo(): any {
+        return this._listeInfo;
+    }
+
+    get isLoading(): any {
+        return this._isLoading;
+    }
+
+    set isLoading(value) {
+        this._isLoading = value;
+        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "isLoading", value: value });
+    }
+
+    get checkProp(): any {
+        return this._checkProp;
+
+    }
+
+    get timeD(): any {
+        return this._timeD;
+    }
+
+    set timeD(value) {
+        this._timeD = value;
+        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "timeD", value: value });
+    }
+
+    get timeH(): any {
+        return this._timeH;
+    }
+
+    set timeH(value) {
+        this._timeH = value;
+        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "timeH", value: value });
+    }
+
+    set checkProp(value) {
+        this._checkProp = value;
+        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "checkProp", value: value });
+    }
+
+
+    get name():any{
+        return this._name;
+    }
+
+    set name(value){
+        this._name = value;
+        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "name", value: value });
+    
+    }
+
+    get lieu():any{
+        return this._lieu;
+    }
+
+    set lieu(value){
+        this._lieu = value;
+        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "lieu", value: value });
+    
+    }
+
+    get nombre():any{
+        return this._nombre;
+    }
+
+    set nombre(value){
+        this._nombre = value;
+        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "nombre", value: value });
     }
 
     public commander() {
-        // this.modalService.showModal(ModalViewComponent, )
-        //     .then((dateresult: Date) => {
-        //         console.log("date result " + dateresult);
-        //     });
+        this.apiService.sendCommande(this._name, this._lieu, this._timeH, this._timeD, this._nombre).then(
+            function (data) {
+                
+                alert("commande envoyée avec succès");
+                this._nombre = 0;
+            }, function (err) {
+                console.log(err);
+                alert("impossible d'envoyer la commande, si le problème persiste, merci de contacter le service technique");
+            }
 
-        // this.apiService.sendCommande(this.commande.name, this.commande.lieu, 0, 0, this.commande.nombre).subscribe(
-        //     data => {
-        //         alert("commande envoyée avec succès");
-        //         this.commande.nombre = 0;
-        //     },
-        //     err => {
-        //         console.log(err);
-        //         alert("impossible d'envoyer la commande, si le problème persiste, merci de contacter le service technique");
-        //     }
-
-        // );
+        );
     }
 
 
@@ -99,58 +163,61 @@ export class CommandeViewModel extends observableModule.Observable{
         this.showDate = !this.showDate;
     }
 
-    configureD(datePicker: DatePicker) {
-        var dateNow = new Date();
-        datePicker.year = dateNow.getFullYear();
-        datePicker.month = dateNow.getMonth();
-        datePicker.day = dateNow.getDay();
-        datePicker.minDate = dateNow;
-        datePicker.maxDate = new Date(2017, 3, 5);
-        this.timeD = datePicker;
 
-    }
-    configureT(timePicker: TimePicker) {
-        var dateNow = new Date();
-        timePicker.hour = dateNow.getHours();
-        timePicker.minute = dateNow.getMinutes();
-        timePicker.minHour = dateNow.getHours();
-        timePicker.minMinute = dateNow.getMinutes();
-        this.timeH = timePicker;
-    }
 
-    createModelView(args) {
-        let that = this;
-        let currentDate = new Date();
-        // let options: ModalDialogOptions = {
-        //     viewContainerRef: this.vcRef,
-        //     context: currentDate.toDateString(),
-        //     fullscreen: false
-        // };
-        // if (args == "date") {
-        //     this._modalService.showModal(ModalViewComponent, options)
-        //         .then((dateresult: Date) => {
-        //             console.log("date result " + dateresult);
+    public openDate() {
+        let mCallback = ((result) => {
+            if (result) {
+                this._timeD = this.dateConverter(new Date(result), "DD/MM");
+                this.notifyPropertyChange("timeD", this.timeD);
+            }
+        });
 
-        //         });
-        // } else {
-        //     this._modalService.showModal(ModalTimeViewComponent, options)
-        //         .then((dateresult: Date) => {
-        //             console.log("date result " + dateresult);
+        var minDate = new Date();
+        TimeDatePicker.setMinDate(minDate);
 
-        //         });
-        // }
+        var maxDate = new Date(2017, 3, 1, 12, 0, 0, 0);
+        TimeDatePicker.setMaxDate(maxDate);
+        TimeDatePicker.init(mCallback, null, null);
 
+        //Show the dialog
+        TimeDatePicker.showDatePickerDialog();
     }
 
-    // public onOpenDrawerTap() {
-    //     // console.log("ici");
-    //     let sideDrawer: drawerModule.RadSideDrawer = <drawerModule.RadSideDrawer>(frame.topmost().getViewById("sideDrawer"));
+    public openTime() {
+        let mCallback = ((result) => {
+            if (result) {
+                
+                this._timeH = result.substring(11,16);
+                this.notifyPropertyChange("timeH", this.timeH);
+
+            }
+        });
+
         
-    //     sideDrawer.toggleDrawerState();
-    // }
+ 
+        TimeDatePicker.init(mCallback, null, null);
 
-    public onCloseDrawerTap() {
-        let sideDrawer: drawerModule.RadSideDrawer = <drawerModule.RadSideDrawer>(frame.topmost().getViewById("sideDrawer"));
-        sideDrawer.closeDrawer();
+        //Show the dialog
+        TimeDatePicker.showTimePickerDialog();
     }
+
+    dateConverter(value, format) {
+        var result = format;
+        if (format == "DD/MM") {
+            var day = value.getDate();
+            result = result.replace("DD", day < 10 ? "0" + day : day);
+            var month = value.getMonth() + 1;
+            result = result.replace("MM", month < 10 ? "0" + month : month);
+        } else {
+            var hour = value.getHours();
+            result = result.replace("HH", hour < 10 ? "0" + hour : hour);
+            var minute = value.getMinutes() + 1;
+            result = result.replace("MM", minute < 10 ? "0" + minute : minute);
+        }
+        return result;
+    };
+
+    
+
 }

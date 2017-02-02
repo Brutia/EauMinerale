@@ -40,3 +40,9 @@ GridLayout{
 .medium-spacing {
   margin: 10;
 }
+
+
+.date{
+    font-size: 30px;
+    text-align: center;
+}

@@ -46,10 +46,8 @@ export default class ApiService {
     }
 
     sendCommande(name, lieu, heure, jour, nombre) {
-        heure = "2016-12-12 12:12:12";
-        jour = "2016-12-12 12:12:12";
         return http.request({
-            url: this.url + "sendCommande",
+            url: this.url + "postCommande",
             method: "POST",
             headers: { "Content-Type": "application/json" },
             content: JSON.stringify({ name:name, lieu:lieu, heure:heure, jour:jour, nombre:nombre })
