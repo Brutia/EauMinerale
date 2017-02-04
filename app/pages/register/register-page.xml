@@ -1,0 +1,17 @@
+<Page loaded="loaded">
+    <!--<Page.actionBar>
+        <ActionBar title="Sign in"></ActionBar>
+    </Page.actionBar>-->
+    <StackLayout orientation="vertical">
+
+        <TextField id="name" text="{{ name }}" hint="Nom et prénom" />
+        <TextField id="email" text="{{ email }}" hint="Adresse email" keyboardType="email" autocorrect="false" autocapitalizationType="none"/>
+        <TextField id="password" secure="true" text="{{ password }}" hint="Mot de passe" />
+        <TextField id="password_confirm" secure="true" text="{{ password_confirm }}" hint="Confirmer le mot de passe" />
+        
+
+        <Button text="S'enregistrer" tap="{{ register }}" />
+        <!--<Button text="S'enregistrer'" class="link" tap="{{register()}}" />-->
+
+    </StackLayout>
+</Page>

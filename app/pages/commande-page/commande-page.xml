@@ -2,6 +2,7 @@
   xmlns="http://schemas.nativescript.org/tns.xsd"
   xmlns:drawer="nativescript-telerik-ui/sidedrawer"
   xmlns:CheckBox="nativescript-checkbox"
+  xmlns:dd="nativescript-drop-down"
   loaded="loaded">
 
   <ActionBar title="Commande">
@@ -21,21 +22,19 @@
         <TabViewItem title="Commande">
             <TabViewItem.view>
                 <ScrollView>
-                    <GridLayout class="m-8" rows="auto auto auto auto auto auto auto auto auto">
-                        <Label row="0" text="commande de..." textWrap="true"/>
-
-                        <label row="1" text="Connecte toi pour ne pas avoir à tapper ton nom!"/>
+                    <GridLayout class="m-8" rows="auto auto auto auto auto auto auto auto auto auto auto">
+                        <label row="1" text="Connecte toi pour ne pas avoir à tapper ton nom!" />
                         <TextField row="2" hint="Nom et prénom" keyboardType="text" text="{{ name }}" textWrap="true"/>
-                        <TextField row="3" hint="lieu" text="{{ lieu }}"/>
-                        <CheckBox:CheckBox row="4" text="Le plus vite possible!" checked="{{ checkProp }}" />
-                        <!--<CheckBox row="4" checked="true"  text="Le plus vite possible!" tap="plusVite" />-->
-                        <!--<DatePicker row="5" #datePicker (loaded)="configureD(datePicker)" verticalAlignment="center" *ngIf="showDate"></DatePicker>-->
-                        <!--<TimePicker row="6" #timePicker (loaded)="configureT(timePicker)" verticalAlignment="center" *ngIf="showDate"></TimePicker>-->
-                        <Label row="5" text="{{timeD}} "  tap="{{openDate}}" visibility="{{ checkProp ? 'collapsed' : 'visible' }}" class="date"/>
-                        <Label row="6" text="{{timeH}}" tap="{{openTime}}" visibility="{{ checkProp ? 'collapsed' : 'visible' }}" class="date"/>
+                        <Label row="3" text="fil rouge:"/>
+                        <dd:DropDown row="4" items="{{ items }}" selectedIndex="{{ selectedIndex }}"  />
+                        <TextField row="5" hint="lieu" text="{{ lieu }}"/>
+                        <CheckBox:CheckBox row="6" text="Le plus vite possible!" checked="{{ checkProp }}" />
                         
-                        <TextField row="7" hint="nombre" keyboardType="number" text="{{ nombre }}" />
-                        <Button row="8" text="Commander !" class="submit-button" tap="{{ commander }}" />
+                        <Label row="7" text="{{timeD}} "  tap="{{openDate}}" visibility="{{ checkProp ? 'collapsed' : 'visible' }}" class="date"/>
+                        <Label row="8" text="{{timeH}}" tap="{{openTime}}" visibility="{{ checkProp ? 'collapsed' : 'visible' }}" class="date"/>
+                        
+                        <TextField row="9" hint="nombre" keyboardType="number" text="{{ nombre }}" />
+                        <Button row="10" text="Commander !" class="submit-button" tap="{{ commander }}" />
                     </GridLayout>
                 </ScrollView>
             </TabViewItem.view>
@@ -65,8 +64,9 @@
     <drawer:RadSideDrawer.drawerContent >
       <GridLayout >
         <StackLayout class="sideStackLayout">
-          <Label text="S'enregistrer'" class="sideLabel" tap="{{ openRegister }}"/>
-          <Label text="Se connecter" class="sideLabel" tap="{{ openLogin }}"/>
+          <Label text="S'enregistrer'" class="sideLabel" tap="{{ openRegister }}" visibility="{{ isLogged ? 'collapsed' : 'visible' }}"/>
+          <Label text="Se connecter" class="sideLabel" tap="{{ openLogin }}" visibility="{{ isLogged ? 'collapsed' : 'visible' }}"/>
+          <Label text="{{ helloText }}" visibility="{{ isLogged ? 'visible' : 'collapsed' }}"/>
         </StackLayout>
       </GridLayout>
     </drawer:RadSideDrawer.drawerContent>

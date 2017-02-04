@@ -2,9 +2,6 @@ import { Commande } from "../../shared/commande/commande";
 import * as appSettings from "application-settings";
 import ApiService from '../../shared/api_service/ApiService';
 import { User } from "../../shared/user/user";
-import { Info } from "./info";
-// import { ModalViewComponent } from "../modal/modal-view";
-// import { ModalTimeViewComponent } from "../modal-hour/modal-view";
 import frame = require('ui/frame');
 import drawerModule = require("nativescript-telerik-ui/sidedrawer");
 import pageModule = require("nativescript-telerik-ui/sidedrawer/drawerpage");
@@ -17,7 +14,7 @@ import * as TimeDatePicker from 'nativescript-timedatepicker';
 export class CommandeViewModel extends Observable {
 
     user: User;
-    private isLogged: boolean;
+    private _isLogged: boolean;
     private showDate: boolean;
     private token: string;
     private _timeD;
@@ -29,18 +26,26 @@ export class CommandeViewModel extends Observable {
     private _name;
     private _lieu;
     private _nombre;
+    private _items;
+    private _selectedIndex;
+    private _token;
+    private _helloText;
 
-    constructor() {
+    constructor(token = "") {
         super();
         this._isLoading = true;
         this._checkProp = true;
-        this._name="";
-        this._lieu="";
+        this._name = "";
+        this._lieu = "";
+
+        this._isLogged = false;
+
         this.apiService = new ApiService();
 
         this._timeD = this.dateConverter(new Date(), "DD/MM");
         this._timeH = this.dateConverter(new Date(), "HH:MM");
         this._listeInfo = new ObservableArray();
+        this._items = new ObservableArray();
         this.apiService.getInfo().then(
             (data) => {
                 for (let i in data) {
@@ -59,6 +64,51 @@ export class CommandeViewModel extends Observable {
 
 
         );
+
+        this.apiService.getFilRouge().then(
+
+
+            (data) => {
+                data = data.fil_rouges;
+                for (let i in data) {
+                    this._items.push(data[i].nom);
+                }
+                this._selectedIndex = 0;
+                super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "selectedIndex", value: this._selectedIndex });
+            },
+            (e) => {
+                alert("une erreur est survenue");
+            }
+        );
+
+
+        if ((this._token = appSettings.getString("token", "")) != "") {
+            this.apiService.getUserInfo(this._token).then(
+                (data) => {
+                    if (data.statusCode != 200) {
+                        alert("Merci de vous reconnecter");
+                    } else {
+                        var user = data.content.toJSON().user;  
+                        this._lieu = user.chambre;
+                        this._name = user.name;
+                        this._isLogged = true;
+                        this._helloText = "Bonjour, "+user.name;
+
+                        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "lieu", value: user.chambre });
+                        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "name", value: user.name });
+                        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "isLogged", value: true });
+                        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "helloText", value: this._helloText });
+                        
+                    }
+                },
+                (e) => {
+                    alert("une erreur est survenue");
+                }
+            )
+
+
+        }
+
 
     }
 
@@ -115,53 +165,86 @@ export class CommandeViewModel extends Observable {
     }
 
 
-    get name():any{
+    get name(): any {
         return this._name;
     }
 
-    set name(value){
-        this._name = value;
-        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "name", value: value });
-    
+    get helloText():any{
+        return this._helloText;
     }
 
-    get lieu():any{
+    set name(value) {
+        this._name = value;
+        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "name", value: value });
+
+    }
+
+    get lieu(): any {
         return this._lieu;
     }
 
-    set lieu(value){
-        this._lieu = value;
-        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "lieu", value: value });
-    
+    get items(): any {
+        return this._items;
     }
 
-    get nombre():any{
+    set lieu(value) {
+        this._lieu = value;
+        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "lieu", value: value });
+
+    }
+
+    get nombre(): any {
         return this._nombre;
     }
 
-    set nombre(value){
+    get isLogged(): any {
+        return this._isLogged;
+    }
+
+    set nombre(value) {
         this._nombre = value;
         super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "nombre", value: value });
     }
 
+    get selectedIndex() {
+        return this._selectedIndex;
+    }
+
+    set selectedIndex(value) {
+        this._selectedIndex = value;
+        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "selectedIndex", value: value });
+    }
+
     public commander() {
-        this.apiService.sendCommande(this._name, this._lieu, this._timeH, this._timeD, this._nombre).then(
-            function (data) {
-                
-                alert("commande envoyée avec succès");
-                this._nombre = 0;
-            }, function (err) {
-                console.log(err);
-                alert("impossible d'envoyer la commande, si le problème persiste, merci de contacter le service technique");
-            }
 
-        );
+        if (this._checkProp) {
+
+            this._timeD = this.dateConverter(new Date(), "DD/MM");
+            this._timeH = this.dateConverter(new Date(), "HH:MM");
+        }
+        if (this._name == "" || this._lieu == "" || this._nombre == 0 || this._nombre == undefined || this._name == undefined || this._lieu == undefined) {
+            alert("merci de remplir tout les champs")
+        } else {
+            console.log(this._selectedIndex);
+
+            this.apiService.sendCommande(this._name, this._lieu, this._timeH, this._timeD, this._nombre).then(
+                (data) => {
+                    alert("commande envoyée avec succès");
+                    this._nombre = 0;
+                    super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "nombre", value: this._nombre });
+                },
+                (e) => {
+                    console.log(e);
+                    alert("impossible d'envoyer la commande, si le problème persiste, merci de contacter le service technique");
+                }
+
+            );
+        }
+
+
     }
 
 
-    public plusVite() {
-        this.showDate = !this.showDate;
-    }
 
 
 
@@ -187,15 +270,15 @@ export class CommandeViewModel extends Observable {
     public openTime() {
         let mCallback = ((result) => {
             if (result) {
-                
-                this._timeH = result.substring(11,16);
+
+                this._timeH = result.substring(11, 16);
                 this.notifyPropertyChange("timeH", this.timeH);
 
             }
         });
 
-        
- 
+
+
         TimeDatePicker.init(mCallback, null, null);
 
         //Show the dialog
@@ -218,6 +301,6 @@ export class CommandeViewModel extends Observable {
         return result;
     };
 
-    
+
 
 }

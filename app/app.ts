@@ -6,21 +6,12 @@ purpose of the file is to pass control to the app’s first module.
 import frame = require('ui/frame');
 import * as app from 'application';
 import dialogs = require("ui/dialogs");
+import ApiService from './shared/api_service/ApiService';
+import * as appSettings from "application-settings";
 // setStatusBarColors();
 app.on(app.launchEvent, function (args) {
     if (args.android) {
         var pushPlugin = require("nativescript-push-notifications");
-        // pushPlugin.register({ senderID: '205172146080' }, function (token) {
-        //     console.log("push_token :", token);
-        // }, function () { });
-
-        // pushPlugin.onMessageReceived(function callback(message, data, notification) {
-        //     alert("Message reçu");
-        //     console.log(message);
-        //     console.log(data.message);
-        //     console.log(notification);
-        //     frame.topmost().navigate({ moduleName: './pages/info-page/info-page' })
-        // });  
         var settings = {
             // Android settings
             senderID: '205172146080', // Android: Required setting with the sender/project number
@@ -43,14 +34,17 @@ app.on(app.launchEvent, function (args) {
             notificationCallbackAndroid: function callback(message, data, notification) {
                 //Show a dialog with the push notification
                 //Remove undeeded quotes
-                
+                console.log("notification received");
                 data = JSON.parse(data);
                 dialogs.alert({
                     title: data.title,
                     message: data.message,
                     okButtonText: "OK"
                 }).then(function () {
-                    console.log("Dialog closed!");
+                    frame.topmost().navigate({
+                        moduleName: "./pages/info-page/info-page",
+                        context: { title: data.title, message: data.message }
+                    });
                 });
             }
         };
@@ -61,9 +55,19 @@ app.on(app.launchEvent, function (args) {
             // Success callback
             function (token) {
 
+                var apiService = new ApiService();
+                apiService.postPushToken("", token).then(
+                    (data) => {
+                    },
+                    (e) => {
+                        console.log("erreur push_token")
+                    });
+
+                appSettings.setString("push_token", token);
                 // if we're on android device we have the onMessageReceived function to subscribe
                 // for push notifications
                 if (pushPlugin.onMessageReceived) {
+                    // console.log("notification received");
                     pushPlugin.onMessageReceived(settings.notificationCallbackAndroid);
                 }
 

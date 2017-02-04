@@ -32,12 +32,16 @@ export default class ApiService {
     }
 
     getUserInfo(token) {
-        return http.getJSON(this.url + 'getUserInfo?token=' + token);
+        return http.request({
+            url: this.url + 'getUserInfo?token=' + token,
+            method: "GET",
+            headers: { "Content-Type": "application/json" }
+        });
     }
 
     postPushToken(token, push_token) {
         return http.request({
-            url: this.url + "push_token?token=" + token,
+            url: this.url + "postPushToken?token=" + token,
             method: "POST",
             headers: { "Content-Type": "application/json" },
             content: JSON.stringify({ push_token: push_token })
@@ -45,17 +49,22 @@ export default class ApiService {
 
     }
 
-    sendCommande(name, lieu, heure, jour, nombre) {
+    sendCommande(name, lieu, heure, jour, nombre, nrFilRouge) {
         return http.request({
             url: this.url + "postCommande",
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            content: JSON.stringify({ name:name, lieu:lieu, heure:heure, jour:jour, nombre:nombre })
+            content: JSON.stringify({ name:name, lieu:lieu, heure:heure, jour:jour, nombre:nombre, nr_fil_rouge:nrFilRouge})
         });
     }
 
     getInfo() {
         return http.getJSON(this.url + 'getInfo');
-
     }
+
+    getFilRouge() {
+        return http.getJSON(this.url + 'getFilRouges');
+    }
+
+
 }

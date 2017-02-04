@@ -13,22 +13,29 @@ export class LoginViewModel extends observableModule.Observable {
         this.apiService = new ApiService();
     }
     login() {
-        console.log("login");
+        var push_token = applicationSettings.getString("push_token", "");
+        var token = "";
         this.apiService.loginUser(this.email, this.password).then(
             function (response) {
                 if (response.statusCode != 200) {
                     alert("Email ou mot de passe incorrect");
                 } else {
+                    token = response.content.toJSON().token;
+                    applicationSettings.setString("token", token);
+                    this.apiService.postPushToken(this._token, applicationSettings.getString("push_token")).then(
+                        (data) => {
+                            console.log(data.statusCode);
+                            frame.topmost().navigate({
+                                moduleName: './pages/commande-page/commande-page',
+                                context: { token: response.content.toJSON().token }
+                            });
+                        }, (e) => {
+                            alert("Une erreur est survenue");
+                        }
+                    );
 
-                    applicationSettings.setString("token", response.content.toJSON().token);
-                    frame.topmost().navigate({ moduleName: './pages/commande-page/commande-page' ,
-                        context: { info: response.content.toJSON().token }
-                });
+
                 }
-
-
-
-
             }, function (e) {
                 alert("Une erreur s'est produite");
             });

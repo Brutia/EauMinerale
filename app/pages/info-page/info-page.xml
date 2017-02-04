@@ -1,4 +1,4 @@
-<Page loaded="loaded" navigatingTo="navigatingTo">
+<Page loaded="loaded" >
     <Page.actionBar>
         <ActionBar title="Nouvelle info!"></ActionBar>
     </Page.actionBar>

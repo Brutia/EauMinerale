@@ -10,7 +10,13 @@ export function loaded(args) {
     page = <Page>args.object;
 
     drawer = page.getViewById("drawer");
-    page.bindingContext = new CommandeViewModel();
+    
+    var gotData=page.navigationContext;
+    var token="";
+    if(gotData != undefined){
+        token=gotData.token;
+    }
+    page.bindingContext = new CommandeViewModel(token);
 
 
 };
