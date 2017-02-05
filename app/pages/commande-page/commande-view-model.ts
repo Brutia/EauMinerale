@@ -1,4 +1,3 @@
-import { Commande } from "../../shared/commande/commande";
 import * as appSettings from "application-settings";
 import ApiService from '../../shared/api_service/ApiService';
 import { User } from "../../shared/user/user";
@@ -30,6 +29,7 @@ export class CommandeViewModel extends Observable {
     private _selectedIndex;
     private _token;
     private _helloText;
+    private _mesCommandes;
 
     constructor(token = "") {
         super();
@@ -46,6 +46,7 @@ export class CommandeViewModel extends Observable {
         this._timeH = this.dateConverter(new Date(), "HH:MM");
         this._listeInfo = new ObservableArray();
         this._items = new ObservableArray();
+        this._mesCommandes = new ObservableArray();
         this.apiService.getInfo().then(
             (data) => {
                 for (let i in data) {
@@ -82,23 +83,24 @@ export class CommandeViewModel extends Observable {
         );
 
 
-        if ((this._token = appSettings.getString("token", "")) != "") {
+        if ((this._token = token) != "" || (this._token = appSettings.getString("token", "")) != "") {
             this.apiService.getUserInfo(this._token).then(
                 (data) => {
                     if (data.statusCode != 200) {
                         alert("Merci de vous reconnecter");
                     } else {
-                        var user = data.content.toJSON().user;  
+                        console.log(this._token);
+                        var user = data.content.toJSON().user;
                         this._lieu = user.chambre;
                         this._name = user.name;
                         this._isLogged = true;
-                        this._helloText = "Bonjour, "+user.name;
+                        this._helloText = "Bonjour, " + user.name;
 
                         super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "lieu", value: user.chambre });
                         super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "name", value: user.name });
                         super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "isLogged", value: true });
                         super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "helloText", value: this._helloText });
-                        
+
                     }
                 },
                 (e) => {
@@ -109,17 +111,27 @@ export class CommandeViewModel extends Observable {
 
         }
 
+        this.apiService.getCommandes(appSettings.getString("push_token")).then(
+            (data) => {
+                for (let i in data) {
+                    this._mesCommandes.push({ "commande": "Commande de " + data[i].number + " " + data[i].nom });
+                }
+            }, (e) => {
+                alert("Impossible de récupérer tes commandes");
+            }
+
+        );
+
 
     }
 
     public openLogin() {
-        frame.topmost().navigate({ moduleName: './pages/login/login-page' })
+        frame.topmost().navigate({ moduleName: './pages/login/login-page' });
     }
 
     public openRegister() {
-        // this.router.navigate(["register"]);
-        // this.set("name","kfjdsqm");
-        // this.set("isLoading", false);
+
+        frame.topmost().navigate({ moduleName: './pages/register/register-page' });
 
     }
 
@@ -139,6 +151,10 @@ export class CommandeViewModel extends Observable {
     get checkProp(): any {
         return this._checkProp;
 
+    }
+
+    get mesCommandes(): any {
+        return this._mesCommandes;
     }
 
     get timeD(): any {
@@ -169,7 +185,7 @@ export class CommandeViewModel extends Observable {
         return this._name;
     }
 
-    get helloText():any{
+    get helloText(): any {
         return this._helloText;
     }
 
@@ -225,13 +241,36 @@ export class CommandeViewModel extends Observable {
         if (this._name == "" || this._lieu == "" || this._nombre == 0 || this._nombre == undefined || this._name == undefined || this._lieu == undefined) {
             alert("merci de remplir tout les champs")
         } else {
-            console.log(this._selectedIndex);
 
-            this.apiService.sendCommande(this._name, this._lieu, this._timeH, this._timeD, this._nombre).then(
+            this.apiService.sendCommande(this._name, this._lieu, this._timeH, this._timeD, this._nombre, this._selectedIndex, appSettings.getString("push_token")).then(
                 (data) => {
-                    alert("commande envoyée avec succès");
-                    this._nombre = 0;
-                    super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "nombre", value: this._nombre });
+                    if (data.statusCode == 200) {
+                        alert("commande envoyée avec succès");
+                        this._nombre = 0;
+                        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "nombre", value: this._nombre });
+
+                    } else if(data.statusCode == 440){
+                        alert("ce fil rouge n'est plus disponible");
+                    } else {
+                        alert("impossible d'envoyer la commande, si le problème persiste, merci de contacter le service technique");
+                    }
+
+                    this.apiService.getFilRouge().then(
+                        (data) => {
+                            data = data.fil_rouges;
+                            this._items = new ObservableArray();
+                            for (let i in data) {
+                                this._items.push(data[i].nom);
+                            }
+                            this._selectedIndex = 0;
+                            super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "selectedIndex", value: this._selectedIndex });
+                            super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "items", value: this._items });
+                        },
+                        (e) => {
+                            alert("une erreur est survenue");
+                        }
+                    );
+
                 },
                 (e) => {
                     console.log(e);
@@ -240,14 +279,7 @@ export class CommandeViewModel extends Observable {
 
             );
         }
-
-
     }
-
-
-
-
-
     public openDate() {
         let mCallback = ((result) => {
             if (result) {
@@ -276,9 +308,6 @@ export class CommandeViewModel extends Observable {
 
             }
         });
-
-
-
         TimeDatePicker.init(mCallback, null, null);
 
         //Show the dialog
@@ -300,6 +329,43 @@ export class CommandeViewModel extends Observable {
         }
         return result;
     };
+
+    public refreshList(args) {
+        var pullRefresh = args.object;
+        this.apiService.getInfo().then(
+            (data) => {
+                this._listeInfo = new ObservableArray();
+                for (let i in data) {
+                    this._listeInfo.push({ title: data[i].title, message: data[i].message });
+                }
+                pullRefresh.refreshing = false;
+                super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "listeInfo", value: this._listeInfo });
+            },
+            (e) => {
+                pullRefresh.refreshing = false;
+                alert("impossible de récupérer les infos de la liste");
+            }
+        );
+    }
+
+    public refreshCommandes(args){
+        var pullRefresh = args.object;
+        this.apiService.getCommandes(appSettings.getString("push_token")).then(
+            (data) => {
+                this._mesCommandes = new ObservableArray();
+                for (let i in data) {
+                    
+                    this._mesCommandes.push({ "commande": "Commande de " + data[i].number + " " + data[i].nom });
+                }
+                pullRefresh.refreshing = false;
+                super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "mesCommandes", value: this._mesCommandes });
+            },
+            (e) => {
+                pullRefresh.refreshing = false;
+                alert("impossible de récupérer vos commandes");
+            }
+        );
+    }
 
 
 

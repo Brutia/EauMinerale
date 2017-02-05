@@ -12,6 +12,7 @@
   "dependencies": {
     "nativescript-checkbox": "^1.2.3",
     "nativescript-drop-down": "^1.5.1",
+    "nativescript-pulltorefresh": "^1.1.10",
     "nativescript-push-notifications": "^0.1.0",
     "nativescript-telerik-ui": "^1.5.1",
     "nativescript-theme-core": "^0.2.1",

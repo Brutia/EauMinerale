@@ -3,6 +3,7 @@
   xmlns:drawer="nativescript-telerik-ui/sidedrawer"
   xmlns:CheckBox="nativescript-checkbox"
   xmlns:dd="nativescript-drop-down"
+  xmlns:PullRefresh="nativescript-pulltorefresh"
   loaded="loaded">
 
   <ActionBar title="Commande">
@@ -23,7 +24,7 @@
             <TabViewItem.view>
                 <ScrollView>
                     <GridLayout class="m-8" rows="auto auto auto auto auto auto auto auto auto auto auto">
-                        <label row="1" text="Connecte toi pour ne pas avoir à tapper ton nom!" />
+                        <label row="1" text="Connecte toi pour ne pas avoir à tapper ton nom!" visibility="{{ isLogged ? 'collapsed' : 'visible' }}" />
                         <TextField row="2" hint="Nom et prénom" keyboardType="text" text="{{ name }}" textWrap="true"/>
                         <Label row="3" text="fil rouge:"/>
                         <dd:DropDown row="4" items="{{ items }}" selectedIndex="{{ selectedIndex }}"  />
@@ -39,9 +40,25 @@
                 </ScrollView>
             </TabViewItem.view>
           </TabViewItem>
-        <TabViewItem title="Info">
+          <TabViewItem title="Mes commandes">
             <TabViewItem.view>
-                <StackLayout>
+                <StackLayout class="listPadding">
+                <PullRefresh:PullToRefresh refresh="{{refreshCommandes}}">
+                 <ListView items="{{ mesCommandes }}" id="mesCommandes">
+                    <ListView.itemTemplate>
+                      <GridLayout rows="auto">
+                          <Label row="0" text="{{ commande }}"/>
+                      </GridLayout>
+                    </ListView.itemTemplate>
+                  </ListView>
+                  </PullRefresh:PullToRefresh>  
+              </StackLayout>
+            </TabViewItem.view>
+          </TabViewItem>
+          <TabViewItem title="Info">
+            <TabViewItem.view>
+                <StackLayout class="listPadding">
+                <PullRefresh:PullToRefresh refresh="{{refreshList}}">
                  <ListView items="{{ listeInfo }}" id="listeInfo">
                     <ListView.itemTemplate>
                       <GridLayout rows="auto, auto">
@@ -50,10 +67,13 @@
                       </GridLayout>
                     </ListView.itemTemplate>
                   </ListView>
+                  </PullRefresh:PullToRefresh>  
                   <ActivityIndicator busy="{{ isLoading }}" rowSpan="2" colSpan="2" /> 
               </StackLayout>
             </TabViewItem.view>
           </TabViewItem>
+
+          
           
           
         </TabView.items>
@@ -64,7 +84,7 @@
     <drawer:RadSideDrawer.drawerContent >
       <GridLayout >
         <StackLayout class="sideStackLayout">
-          <Label text="S'enregistrer'" class="sideLabel" tap="{{ openRegister }}" visibility="{{ isLogged ? 'collapsed' : 'visible' }}"/>
+          <Label text="S'enregistrer" class="sideLabel" tap="{{ openRegister }}" visibility="{{ isLogged ? 'collapsed' : 'visible' }}"/>
           <Label text="Se connecter" class="sideLabel" tap="{{ openLogin }}" visibility="{{ isLogged ? 'collapsed' : 'visible' }}"/>
           <Label text="{{ helloText }}" visibility="{{ isLogged ? 'visible' : 'collapsed' }}"/>
         </StackLayout>

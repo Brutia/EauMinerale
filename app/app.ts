@@ -20,15 +20,19 @@ app.on(app.launchEvent, function (args) {
                 sound: true,
                 alert: true
             },
-            notificationCallbackIOS: function (userInfo) {
+            notificationCallbackIOS: function (message) {
                 //Show a dialog with the push notification
-                dialogs.alert({
-                    title: "Push Notification",
-                    message: JSON.stringify(userInfo.alert),
-                    okButtonText: "OK"
-                }).then(function () {
-                    console.log("Dialog closed!");
-                });
+                console.log( JSON.parse(message));
+                // dialogs.alert({
+                //     title: data.title,
+                //     message: data.message,
+                //     okButtonText: "OK"
+                // }).then(function () {
+                //     frame.topmost().navigate({
+                //         moduleName: "./pages/info-page/info-page",
+                //         context: { title: data.title, message: data.message }
+                //     });
+                // });
             },
 
             notificationCallbackAndroid: function callback(message, data, notification) {
@@ -83,8 +87,3 @@ app.on(app.launchEvent, function (args) {
 
 
 app.start({ moduleName: './pages/commande-page/commande-page' });
-
-/*
-Do not place any code after the application has been started as it will not
-be executed on iOS.
-*/

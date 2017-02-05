@@ -46,3 +46,8 @@ GridLayout{
     font-size: 30px;
     text-align: center;
 }
+
+.listPadding Label{
+    margin-top: 10px;
+}
+

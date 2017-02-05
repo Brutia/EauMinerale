@@ -44,17 +44,17 @@ export default class ApiService {
             url: this.url + "postPushToken?token=" + token,
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            content: JSON.stringify({ push_token: push_token })
+            content: JSON.stringify({ "push_token": push_token })
         })
 
     }
 
-    sendCommande(name, lieu, heure, jour, nombre, nrFilRouge) {
+    sendCommande(name, lieu, heure, jour, nombre, nrFilRouge, push_token) {
         return http.request({
             url: this.url + "postCommande",
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            content: JSON.stringify({ name:name, lieu:lieu, heure:heure, jour:jour, nombre:nombre, nr_fil_rouge:nrFilRouge})
+            content: JSON.stringify({ name:name, lieu:lieu, heure:heure, jour:jour, nombre:nombre, nr_fil_rouge:nrFilRouge, push_token:push_token})
         });
     }
 
@@ -64,6 +64,10 @@ export default class ApiService {
 
     getFilRouge() {
         return http.getJSON(this.url + 'getFilRouges');
+    }
+
+    getCommandes(push_token){
+        return http.getJSON(this.url+"getCommandesAppli?push_token="+push_token);
     }
 
 

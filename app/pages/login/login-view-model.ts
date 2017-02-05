@@ -16,15 +16,15 @@ export class LoginViewModel extends observableModule.Observable {
         var push_token = applicationSettings.getString("push_token", "");
         var token = "";
         this.apiService.loginUser(this.email, this.password).then(
-            function (response) {
+            (response) => {
                 if (response.statusCode != 200) {
                     alert("Email ou mot de passe incorrect");
                 } else {
                     token = response.content.toJSON().token;
                     applicationSettings.setString("token", token);
-                    this.apiService.postPushToken(this._token, applicationSettings.getString("push_token")).then(
+                    console.log(token);
+                    this.apiService.postPushToken(token, push_token).then(
                         (data) => {
-                            console.log(data.statusCode);
                             frame.topmost().navigate({
                                 moduleName: './pages/commande-page/commande-page',
                                 context: { token: response.content.toJSON().token }
@@ -36,14 +36,10 @@ export class LoginViewModel extends observableModule.Observable {
 
 
                 }
-            }, function (e) {
+            }, (e) => {
                 alert("Une erreur s'est produite");
             });
     }
-
-    // register(){
-    //     frame.topmost().navigate("")
-    // }
 
 
 }
