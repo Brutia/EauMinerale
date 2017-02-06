@@ -44,10 +44,12 @@
             <TabViewItem.view>
                 <StackLayout class="listPadding">
                 <PullRefresh:PullToRefresh refresh="{{refreshCommandes}}">
-                 <ListView items="{{ mesCommandes }}" id="mesCommandes">
+                 <ListView items="{{ mesCommandes }}" id="mesCommandes" itemTap="{{commandeTap}}">
                     <ListView.itemTemplate>
-                      <GridLayout rows="auto">
-                          <Label row="0" text="{{ commande }}"/>
+                      <GridLayout rows="auto auto ">
+                          <!--<TextView row="0" text="{{commande}}" textWrap="true" editable="false" />-->
+                          <Label row="0" text="{{ commande }}" />
+                          <Label row="1" text="{{ nomLieu }}" />
                       </GridLayout>
                     </ListView.itemTemplate>
                   </ListView>
@@ -59,7 +61,7 @@
             <TabViewItem.view>
                 <StackLayout class="listPadding">
                 <PullRefresh:PullToRefresh refresh="{{refreshList}}">
-                 <ListView items="{{ listeInfo }}" id="listeInfo">
+                 <ListView items="{{ listeInfo }}" id="listeInfo" itemTap="{{openInfo}}">
                     <ListView.itemTemplate>
                       <GridLayout rows="auto, auto">
                           <Label row="0" text="{{ title }}"/>
@@ -72,10 +74,6 @@
               </StackLayout>
             </TabViewItem.view>
           </TabViewItem>
-
-          
-          
-          
         </TabView.items>
       </TabView> 
     </drawer:RadSideDrawer.mainContent>
@@ -86,7 +84,8 @@
         <StackLayout class="sideStackLayout">
           <Label text="S'enregistrer" class="sideLabel" tap="{{ openRegister }}" visibility="{{ isLogged ? 'collapsed' : 'visible' }}"/>
           <Label text="Se connecter" class="sideLabel" tap="{{ openLogin }}" visibility="{{ isLogged ? 'collapsed' : 'visible' }}"/>
-          <Label text="{{ helloText }}" visibility="{{ isLogged ? 'visible' : 'collapsed' }}"/>
+          <Label text="{{ helloText }}" class="sideLabel" visibility="{{ isLogged ? 'visible' : 'collapsed' }}"/>
+          <Label text="Se déconnecter" class="sideLabel" tap="{{ logout }}" visibility="{{ isLogged ? 'visible' : 'collapsed' }}" />
         </StackLayout>
       </GridLayout>
     </drawer:RadSideDrawer.drawerContent>

@@ -23,13 +23,13 @@
 	},
 	"homepage": "https://github.com/NativeScript/template-hello-world-ts",
 	"android": {
-		"v8Flags": "--expose_gc"
+		"v8Flags": "--expose_gc",
+		"heapSnapshotBlob": "snapshots"
 	},
 	"dependencies": {
 		"nativescript-theme-core": "^0.2.1"
 	},
 	"devDependencies": {
-		"nativescript-dev-typescript": "^0.3.2",
-		"nativescript-dev-android-snapshot": "^0.*.*"
+		"nativescript-dev-typescript": "^0.3.2"
 	}
 }

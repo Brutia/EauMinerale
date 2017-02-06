@@ -5,8 +5,8 @@
     <StackLayout orientation="vertical">
 
 
-        <Label text="{{title}}" class="title"/>
-        <Label text="{{message}}" />
+        <TextView text="{{title}}" class="title" textWrap="true" editable="false"  />
+        <TextView text="{{message}}" textWrap="true" editable="false" />
 
 
     </StackLayout>

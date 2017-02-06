@@ -1,11 +1,16 @@
 .title{
 
     font: bold;
-    font-size: 50;
+    font-size: 30;
+    background-color: transparent;
+    border-color: transparent;
 }
 
-Label{
+TextView{
 
-    font-size: 50;
+    font-size: 30;
     padding: 20px;
+    background-color: transparent;
+    border-color: transparent;
 }
+

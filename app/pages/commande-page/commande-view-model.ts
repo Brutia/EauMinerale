@@ -8,6 +8,7 @@ import { Observable } from 'data/observable';
 import { ObservableArray } from 'data/observable-array';
 var pushPlugin = require("nativescript-push-notifications");
 import * as TimeDatePicker from 'nativescript-timedatepicker';
+import dialogs = require("ui/dialogs");
 
 
 export class CommandeViewModel extends Observable {
@@ -15,7 +16,6 @@ export class CommandeViewModel extends Observable {
     user: User;
     private _isLogged: boolean;
     private showDate: boolean;
-    private token: string;
     private _timeD;
     private _timeH;
     private _isLoading;
@@ -30,6 +30,7 @@ export class CommandeViewModel extends Observable {
     private _token;
     private _helloText;
     private _mesCommandes;
+    private _isAdmin;
 
     constructor(token = "") {
         super();
@@ -37,6 +38,7 @@ export class CommandeViewModel extends Observable {
         this._checkProp = true;
         this._name = "";
         this._lieu = "";
+        this._isAdmin = false;
 
         this._isLogged = false;
 
@@ -89,7 +91,7 @@ export class CommandeViewModel extends Observable {
                     if (data.statusCode != 200) {
                         alert("Merci de vous reconnecter");
                     } else {
-                        console.log(this._token);
+                        this._isAdmin = data.content.toJSON().isAdmin;
                         var user = data.content.toJSON().user;
                         this._lieu = user.chambre;
                         this._name = user.name;
@@ -114,7 +116,7 @@ export class CommandeViewModel extends Observable {
         this.apiService.getCommandes(appSettings.getString("push_token")).then(
             (data) => {
                 for (let i in data) {
-                    this._mesCommandes.push({ "commande": "Commande de " + data[i].number + " " + data[i].nom });
+                    this._mesCommandes.push({ "id": data[i].id, "commande": "Commande de " + data[i].number + " " + data[i].nom, "nomLieu": "pour " + data[i].name + " lieu: " + data[i].lieu });
                 }
             }, (e) => {
                 alert("Impossible de récupérer tes commandes");
@@ -209,12 +211,23 @@ export class CommandeViewModel extends Observable {
 
     }
 
+    set token(value) {
+        this._token = value;
+        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "token", value: value });
+
+    }
+
     get nombre(): any {
         return this._nombre;
     }
 
     get isLogged(): any {
         return this._isLogged;
+    }
+
+    set isLogged(value) {
+        this._isLogged = value;
+        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "isLogged", value: value });
     }
 
     set nombre(value) {
@@ -230,6 +243,8 @@ export class CommandeViewModel extends Observable {
         this._selectedIndex = value;
         super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "selectedIndex", value: value });
     }
+
+
 
     public commander() {
 
@@ -249,7 +264,7 @@ export class CommandeViewModel extends Observable {
                         this._nombre = 0;
                         super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "nombre", value: this._nombre });
 
-                    } else if(data.statusCode == 440){
+                    } else if (data.statusCode == 440) {
                         alert("ce fil rouge n'est plus disponible");
                     } else {
                         alert("impossible d'envoyer la commande, si le problème persiste, merci de contacter le service technique");
@@ -283,15 +298,18 @@ export class CommandeViewModel extends Observable {
     public openDate() {
         let mCallback = ((result) => {
             if (result) {
-                this._timeD = this.dateConverter(new Date(result), "DD/MM");
-                this.notifyPropertyChange("timeD", this.timeD);
+                this._timeD = "";
+                this._timeD = result.substring(0,2)+"/"+result.substring(3,5);
+
+                super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "timeD", value: this._timeD });
             }
         });
 
         var minDate = new Date();
         TimeDatePicker.setMinDate(minDate);
 
-        var maxDate = new Date(2017, 3, 1, 12, 0, 0, 0);
+        var maxDate = new Date(2017, 4, 1,0, 0, 0, 0);
+        
         TimeDatePicker.setMaxDate(maxDate);
         TimeDatePicker.init(mCallback, null, null);
 
@@ -304,8 +322,7 @@ export class CommandeViewModel extends Observable {
             if (result) {
 
                 this._timeH = result.substring(11, 16);
-                this.notifyPropertyChange("timeH", this.timeH);
-
+                super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "timeH", value: this._timeH });
             }
         });
         TimeDatePicker.init(mCallback, null, null);
@@ -316,6 +333,7 @@ export class CommandeViewModel extends Observable {
 
     dateConverter(value, format) {
         var result = format;
+        
         if (format == "DD/MM") {
             var day = value.getDate();
             result = result.replace("DD", day < 10 ? "0" + day : day);
@@ -348,14 +366,15 @@ export class CommandeViewModel extends Observable {
         );
     }
 
-    public refreshCommandes(args){
+    public refreshCommandes(args) {
         var pullRefresh = args.object;
         this.apiService.getCommandes(appSettings.getString("push_token")).then(
             (data) => {
                 this._mesCommandes = new ObservableArray();
                 for (let i in data) {
-                    
-                    this._mesCommandes.push({ "commande": "Commande de " + data[i].number + " " + data[i].nom });
+
+                    // this._mesCommandes.push({ "id": data[i].id, "commande": "Commande de " + data[i].number + " " + data[i].nom });
+                    this._mesCommandes.push({ "id": data[i].id, "commande": "Commande de " + data[i].number + " " + data[i].nom, "nomLieu": "pour " + data[i].name + " lieu: " + data[i].lieu });
                 }
                 pullRefresh.refreshing = false;
                 super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "mesCommandes", value: this._mesCommandes });
@@ -365,6 +384,62 @@ export class CommandeViewModel extends Observable {
                 alert("impossible de récupérer vos commandes");
             }
         );
+    }
+
+    public commandeTap(args) {
+        var itemIndex = args.index;
+        if (this._isAdmin) {
+            dialogs.confirm({
+                title: "Voulez-vous prendre la commande?",
+                okButtonText: "OK",
+                cancelButtonText: "Annuler",
+
+            }).then((result) => {
+                if (result) {
+                    this.apiService.takeCommande(this._token, this._mesCommandes.getItem(itemIndex).id).then(
+                        (data) => {
+                            if (data.statusCode == 200) {
+                                alert("Commande prise avec succès");
+                                this._mesCommandes = new ObservableArray();
+                                this.apiService.getCommandes(appSettings.getString("push_token")).then(
+                                    (data) => {
+                                        for (let i in data) {
+
+                                            // this._mesCommandes.push({ "id": data[i].id, "commande": "Commande de " + data[i].number + " " + data[i].nom });
+                                            this._mesCommandes.push({ "id": data[i].id, "commande": "Commande de " + data[i].number + " " + data[i].nom, "nomLieu": "pour " + data[i].name + " lieu: " + data[i].lieu });
+                                        }
+                                        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "mesCommandes", value: this._mesCommandes });
+                                    }, (e) => {
+                                        alert("une erreur est survenue");
+                                    });
+                            } else {
+                                alert("une erreur s'est produite");
+                            }
+                        }, (e) => {
+                            alert("Une erreur s'est produite");
+                        });
+                }
+            });
+        }
+    }
+
+    public logout() {
+        this.isLogged = false;
+        this.token = "";
+        appSettings.setString("token", "");
+        this.name = "";
+        this.lieu = "";
+        this._isAdmin = false;
+        alert("déconnexion réussie");
+
+    }
+
+    public openInfo(args) {
+        var itemIndex = args.index;
+        frame.topmost().navigate({
+            moduleName: "./pages/info-page/info-page",
+            context: { title: this._listeInfo.getItem(itemIndex).title, message: this._listeInfo.getItem(itemIndex).message }
+        });
     }
 
 

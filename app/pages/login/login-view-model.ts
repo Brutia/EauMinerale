@@ -22,7 +22,6 @@ export class LoginViewModel extends observableModule.Observable {
                 } else {
                     token = response.content.toJSON().token;
                     applicationSettings.setString("token", token);
-                    console.log(token);
                     this.apiService.postPushToken(token, push_token).then(
                         (data) => {
                             frame.topmost().navigate({

@@ -70,5 +70,13 @@ export default class ApiService {
         return http.getJSON(this.url+"getCommandesAppli?push_token="+push_token);
     }
 
+    takeCommande(token, id_commande){
+        return http.request({
+            url: this.url + "takeCommande?token="+token,
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            content: JSON.stringify({ commande_id:id_commande})
+        });
+    }
 
 }
