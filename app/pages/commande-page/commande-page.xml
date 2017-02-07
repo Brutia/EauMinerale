@@ -23,7 +23,7 @@
         <TabViewItem title="Commande">
             <TabViewItem.view>
                 <ScrollView>
-                    <GridLayout class="m-8" rows="auto auto auto auto auto auto auto auto auto auto auto">
+                    <GridLayout class="m-8" rows="auto auto auto auto auto auto auto auto auto auto auto auto">
                         <label row="1" text="Connecte toi pour ne pas avoir à tapper ton nom!" visibility="{{ isLogged ? 'collapsed' : 'visible' }}" />
                         <TextField row="2" hint="Nom et prénom" keyboardType="text" text="{{ name }}" textWrap="true"/>
                         <Label row="3" text="fil rouge:"/>
@@ -35,7 +35,9 @@
                         <Label row="8" text="{{timeH}}" tap="{{openTime}}" visibility="{{ checkProp ? 'collapsed' : 'visible' }}" class="date"/>
                         
                         <TextField row="9" hint="nombre" keyboardType="number" text="{{ nombre }}" />
-                        <Button row="10" text="Commander !" class="submit-button" tap="{{ commander }}" />
+                        
+                        <TextField row="10" hint="Commentaire" keyboardType="text" text="{{ commentaire }}" />
+                        <Button row="11" text="Commander !" class="submit-button" tap="{{ commander }}" />
                     </GridLayout>
                 </ScrollView>
             </TabViewItem.view>

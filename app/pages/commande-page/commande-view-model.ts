@@ -31,6 +31,7 @@ export class CommandeViewModel extends Observable {
     private _helloText;
     private _mesCommandes;
     private _isAdmin;
+    private _commentaire;
 
     constructor(token = "") {
         super();
@@ -168,6 +169,15 @@ export class CommandeViewModel extends Observable {
         super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "timeD", value: value });
     }
 
+    get commentaire(): any {
+        return this._commentaire;
+    }
+
+    set commentaire(value) {
+        this._commentaire = value;
+        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "_commentaire", value: value });
+    }
+
     get timeH(): any {
         return this._timeH;
     }
@@ -257,12 +267,14 @@ export class CommandeViewModel extends Observable {
             alert("merci de remplir tout les champs")
         } else {
 
-            this.apiService.sendCommande(this._name, this._lieu, this._timeH, this._timeD, this._nombre, this._selectedIndex, appSettings.getString("push_token")).then(
+            this.apiService.sendCommande(this._name, this._lieu, this._timeH, this._timeD, this._nombre, this._selectedIndex, appSettings.getString("push_token"), this._commentaire).then(
                 (data) => {
                     if (data.statusCode == 200) {
                         alert("commande envoyée avec succès");
                         this._nombre = 0;
+                        this._commentaire="";
                         super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "nombre", value: this._nombre });
+                        super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "commentaire", value: this._commentaire });
 
                     } else if (data.statusCode == 440) {
                         alert("ce fil rouge n'est plus disponible");

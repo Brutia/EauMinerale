@@ -49,12 +49,12 @@ export default class ApiService {
 
     }
 
-    sendCommande(name, lieu, heure, jour, nombre, nrFilRouge, push_token) {
+    sendCommande(name, lieu, heure, jour, nombre, nrFilRouge, push_token, commentaire) {
         return http.request({
             url: this.url + "postCommande",
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            content: JSON.stringify({ name:name, lieu:lieu, heure:heure, jour:jour, nombre:nombre, nr_fil_rouge:nrFilRouge, push_token:push_token})
+            content: JSON.stringify({ name:name, lieu:lieu, heure:heure, jour:jour, nombre:nombre, nr_fil_rouge:nrFilRouge, push_token:push_token, commentaire:commentaire})
         });
     }
 
