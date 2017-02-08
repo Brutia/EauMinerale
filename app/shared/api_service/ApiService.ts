@@ -79,4 +79,8 @@ export default class ApiService {
         });
     }
 
+    disconnect(push_token){
+        return http.getJSON(this.url+"disconnect?push_token="+push_token);
+    }
+
 }

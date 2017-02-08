@@ -48,10 +48,11 @@
                 <PullRefresh:PullToRefresh refresh="{{refreshCommandes}}">
                  <ListView items="{{ mesCommandes }}" id="mesCommandes" itemTap="{{commandeTap}}">
                     <ListView.itemTemplate>
-                      <GridLayout rows="auto auto ">
+                      <GridLayout rows="auto auto auto">
                           <!--<TextView row="0" text="{{commande}}" textWrap="true" editable="false" />-->
                           <Label row="0" text="{{ commande }}" />
                           <Label row="1" text="{{ nomLieu }}" />
+                          <Label row="2" text="{{ commentaire}}" />
                       </GridLayout>
                     </ListView.itemTemplate>
                   </ListView>

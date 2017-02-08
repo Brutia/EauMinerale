@@ -39,6 +39,7 @@ export class CommandeViewModel extends Observable {
         this._checkProp = true;
         this._name = "";
         this._lieu = "";
+        this._commentaire ="";
         this._isAdmin = false;
 
         this._isLogged = false;
@@ -117,7 +118,7 @@ export class CommandeViewModel extends Observable {
         this.apiService.getCommandes(appSettings.getString("push_token")).then(
             (data) => {
                 for (let i in data) {
-                    this._mesCommandes.push({ "id": data[i].id, "commande": "Commande de " + data[i].number + " " + data[i].nom, "nomLieu": "pour " + data[i].name + " lieu: " + data[i].lieu });
+                    this._mesCommandes.push({ "id": data[i].id, "commande": "Commande de " + data[i].number + " " + data[i].nom, "nomLieu": "pour " + data[i].name + " lieu: " + data[i].lieu, "commentaire": "Commentaire: " + data[i].commentaire });
                 }
             }, (e) => {
                 alert("Impossible de récupérer tes commandes");
@@ -272,13 +273,14 @@ export class CommandeViewModel extends Observable {
                     if (data.statusCode == 200) {
                         alert("commande envoyée avec succès");
                         this._nombre = 0;
-                        this._commentaire="";
+                        this._commentaire = "";
                         super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "nombre", value: this._nombre });
                         super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "commentaire", value: this._commentaire });
 
                     } else if (data.statusCode == 440) {
                         alert("ce fil rouge n'est plus disponible");
                     } else {
+                        console.log(data.statusCode);
                         alert("impossible d'envoyer la commande, si le problème persiste, merci de contacter le service technique");
                     }
 
@@ -311,7 +313,7 @@ export class CommandeViewModel extends Observable {
         let mCallback = ((result) => {
             if (result) {
                 this._timeD = "";
-                this._timeD = result.substring(0,2)+"/"+result.substring(3,5);
+                this._timeD = result.substring(0, 2) + "/" + result.substring(3, 5);
 
                 super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "timeD", value: this._timeD });
             }
@@ -320,8 +322,8 @@ export class CommandeViewModel extends Observable {
         var minDate = new Date();
         TimeDatePicker.setMinDate(minDate);
 
-        var maxDate = new Date(2017, 4, 1,0, 0, 0, 0);
-        
+        var maxDate = new Date(2017, 4, 1, 0, 0, 0, 0);
+
         TimeDatePicker.setMaxDate(maxDate);
         TimeDatePicker.init(mCallback, null, null);
 
@@ -345,7 +347,7 @@ export class CommandeViewModel extends Observable {
 
     dateConverter(value, format) {
         var result = format;
-        
+
         if (format == "DD/MM") {
             var day = value.getDate();
             result = result.replace("DD", day < 10 ? "0" + day : day);
@@ -386,7 +388,7 @@ export class CommandeViewModel extends Observable {
                 for (let i in data) {
 
                     // this._mesCommandes.push({ "id": data[i].id, "commande": "Commande de " + data[i].number + " " + data[i].nom });
-                    this._mesCommandes.push({ "id": data[i].id, "commande": "Commande de " + data[i].number + " " + data[i].nom, "nomLieu": "pour " + data[i].name + " lieu: " + data[i].lieu });
+                    this._mesCommandes.push({ "id": data[i].id, "commande": "Commande de " + data[i].number + " " + data[i].nom, "nomLieu": "pour " + data[i].name + " lieu: " + data[i].lieu, "commentaire": "Commentaire: " + data[i].commentaire });
                 }
                 pullRefresh.refreshing = false;
                 super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "mesCommandes", value: this._mesCommandes });
@@ -418,7 +420,7 @@ export class CommandeViewModel extends Observable {
                                         for (let i in data) {
 
                                             // this._mesCommandes.push({ "id": data[i].id, "commande": "Commande de " + data[i].number + " " + data[i].nom });
-                                            this._mesCommandes.push({ "id": data[i].id, "commande": "Commande de " + data[i].number + " " + data[i].nom, "nomLieu": "pour " + data[i].name + " lieu: " + data[i].lieu });
+                                            this._mesCommandes.push({ "id": data[i].id, "commande": "Commande de " + data[i].number + " " + data[i].nom, "nomLieu": "pour " + data[i].name + " lieu: " + data[i].lieu, "commentaire": "Commentaire: " + data[i].commentaire });
                                         }
                                         super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "mesCommandes", value: this._mesCommandes });
                                     }, (e) => {
@@ -442,6 +444,18 @@ export class CommandeViewModel extends Observable {
         this.name = "";
         this.lieu = "";
         this._isAdmin = false;
+        this.apiService.disconnect(appSettings.getString("push_token"));
+        this.apiService.getCommandes(appSettings.getString("push_token")).then(
+            (data) => {
+                for (let i in data) {
+
+                    // this._mesCommandes.push({ "id": data[i].id, "commande": "Commande de " + data[i].number + " " + data[i].nom });
+                    this._mesCommandes.push({ "id": data[i].id, "commande": "Commande de " + data[i].number + " " + data[i].nom, "nomLieu": "pour " + data[i].name + " lieu: " + data[i].lieu, "commentaire": "Commentaire: " + data[i].commentaire });
+                }
+                super.notify({ object: this, eventName: Observable.propertyChangeEvent, propertyName: "mesCommandes", value: this._mesCommandes });
+            }, (e) => {
+                alert("une erreur est survenue");
+            });
         alert("déconnexion réussie");
 
     }
