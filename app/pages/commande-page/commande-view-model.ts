@@ -51,6 +51,7 @@ export class CommandeViewModel extends Observable {
         this._listeInfo = new ObservableArray();
         this._items = new ObservableArray();
         this._mesCommandes = new ObservableArray();
+
         this.apiService.getInfo().then(
             (data) => {
                 for (let i in data) {
@@ -364,6 +365,7 @@ export class CommandeViewModel extends Observable {
 
     public refreshList(args) {
         var pullRefresh = args.object;
+        this.selectedIndex = 0;
         this.apiService.getInfo().then(
             (data) => {
                 this._listeInfo = new ObservableArray();
